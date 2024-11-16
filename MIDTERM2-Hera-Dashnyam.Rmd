@@ -1,0 +1,630 @@
+---
+title: "Midterm 2"
+author: "Hera Dashnyam"
+date: "2024-11-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Necessar libraries:
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(ggthemes)
+library(ggrepel)
+library(tidytext)
+library(wordcloud)
+library(textdata)
+library(ggwordcloud)
+library(maps)
+library(viridis)
+library(cowplot)
+library(scales)
+library(wordcloud2)
+library(stringr)
+library(htmlwidgets)
+library(patchwork)
+library(webshot)
+library(png)
+library(grid)
+library(gridExtra)
+library(ggridges)
+library(htmltools)
+```
+
+## PROBLEM 1: 
+
+```{r, message=FALSE, warning=FALSE}
+# LOAD DATA:
+production_data <- read_csv("https://raw.githubusercontent.com/oconnellmj/sta309/main/milk-production-tonnes.csv")
+consumption_data <- read_csv("https://raw.githubusercontent.com/oconnellmj/sta309/main/per-capita-milk-consumption.csv")
+
+# RENAME COLUMNS:
+production_data <- production_data %>%
+  rename(Country = Entity, Production = `Milk Production (tonnes)`)
+
+consumption_data <- consumption_data %>%
+  rename(Country = Entity, Consumption = `Milk consumption (kilograms per year per capita)`)
+
+# FILTER THE YEAR:
+production_2020 <- production_data %>% filter(Year == 2020)
+consumption_2020 <- consumption_data %>% filter(Year == 2020)
+
+countries_to_exclude <- c(
+  "Africa", "Africa (FAO)", "Americas (FAO)", "Asia", "Asia (FAO)", 
+  "Caribbean (FAO)", "Central America (FAO)", "Central Asia (FAO)", 
+  "China (FAO)", "Eastern Africa (FAO)", "Eastern Asia (FAO)", 
+  "Eastern Europe (FAO)", "Europe", "Europe (FAO)", "European Union (27)", 
+  "European Union (27) (FAO)", "High-income countries", 
+  "Land Locked Developing Countries (FAO)", "Least Developed Countries (FAO)", 
+  "Low Income Food Deficit Countries (FAO)", "Low-income countries", 
+  "Lower-middle-income countries", "Melanesia", "Middle Africa (FAO)", 
+  "Net Food Importing Developing Countries (FAO)", "North America", 
+  "Northern Africa (FAO)", "Northern America (FAO)", "Northern Europe (FAO)", 
+  "Oceania", "Oceania (FAO)", "Polynesia", "Small Island Developing States (FAO)", 
+  "South America", "South America (FAO)", "South-eastern Asia (FAO)", 
+  "Southern Africa (FAO)", "Southern Asia (FAO)", "Southern Europe (FAO)", 
+  "Upper-middle-income countries", "Western Africa (FAO)", 
+  "Western Asia (FAO)", "Western Europe (FAO)", "World"
+)
+
+# PRODUCTION:
+production_2020 <- production_2020 %>%
+  filter(!Country %in% countries_to_exclude) %>%
+  mutate(Country = case_when(
+    Country == "United States" ~ "USA",
+    Country == "Congo" ~ "Republic of Congo",
+    Country == "Democratic Republic of Congo" ~ "Congo, Democratic Republic of",
+    Country == "Cote d'Ivoire" ~ "Ivory Coast",
+    Country == "East Timor" ~ "Timor-Leste",
+    Country == "Eswatini" ~ "Swaziland",
+    Country == "Hong Kong" ~ "Hong Kong S.A.R.",
+    Country == "Saint Vincent and the Grenadines" ~ "Saint Vincent",
+    Country == "Trinidad and Tobago" ~ "Trinidad",
+    Country == "United Kingdom" ~ "UK",
+    Country == "Denmark" ~ "Greenland",
+    TRUE ~ Country
+  ))
+
+# CONSUMPTION:
+consumption_2020 <- consumption_2020 %>%
+  filter(!Country %in% countries_to_exclude) %>%
+  mutate(Country = case_when(
+    Country == "United States" ~ "USA",
+    Country == "Congo" ~ "Republic of Congo",
+    Country == "Democratic Republic of Congo" ~ "Congo, Democratic Republic of",
+    Country == "Cote d'Ivoire" ~ "Ivory Coast",
+    Country == "East Timor" ~ "Timor-Leste",
+    Country == "Eswatini" ~ "Swaziland",
+    Country == "Hong Kong" ~ "Hong Kong S.A.R.",
+    Country == "Saint Vincent and the Grenadines" ~ "Saint Vincent",
+    Country == "Trinidad and Tobago" ~ "Trinidad",
+    Country == "United Kingdom" ~ "UK",
+    Country == "Denmark" ~ "Greenland",
+    TRUE ~ Country
+  ))
+
+# PREPARE TEH WORLD MAP DATA:
+world_map <- map_data("world") %>%
+  filter(region != "Antarctica") %>%
+  mutate(region = case_when(
+    region == "Antigua" ~ "Antigua and Barbuda",
+    region == "Czech Republic" ~ "Czechia",
+    region == "Democratic Republic of the Congo" ~ "Congo, Democratic Republic of",
+    region == "Hong Kong" ~ "Hong Kong S.A.R.",
+    TRUE ~ region
+  ))
+
+# MAP FOR DAIRY PRODUCTION
+production_map_data <- world_map %>%
+  left_join(production_2020, by = c("region" = "Country"))
+
+production_map <- ggplot(production_map_data, aes(x = long, y = lat, group = group, fill = Production)) +
+  geom_polygon(color = "white") +
+  scale_fill_viridis_c(option = "plasma", na.value = "grey50", 
+                       labels = scales::label_number(scale = 1e-6, suffix = "M"),  
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5, 
+                                              barwidth = unit(8, "cm"), barheight = unit(0.2, "cm"))) +
+  labs(
+    title = "Global Dairy Production in 2020",
+    fill = "Production (tonnes)"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    legend.position = "bottom",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+# MAP FOR DAIRY CONSUMPTION
+consumption_map_data <- world_map %>%
+  left_join(consumption_2020, by = c("region" = "Country"))
+
+consumption_map <- ggplot(consumption_map_data, aes(x = long, y = lat, group = group, fill = Consumption)) +
+  geom_polygon(color = "white") +
+  scale_fill_viridis_c(option = "magma", na.value = "grey50",
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5, 
+                                              barwidth = unit(8, "cm"), barheight = unit(0.2, "cm"))) +
+  labs(
+    title = "Global Dairy Consumption in 2020",
+    fill = "Consumption (kg per capita)"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    legend.position = "bottom",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+# PLOT CHANGES OVER TIME FOR TOP 3 COUNTRIES IN DAIRY PRODUCTION FOR 2020:
+top_countries <- c("United States", "India", "Pakistan")
+
+top_production <- production_data %>% filter(Country %in% top_countries)
+
+change_over_time <- ggplot() +
+  geom_line(data = top_production, aes(x = Year, y = Production, color = Country), size = 1) +
+    scale_color_manual(values = c("United States" = "#D53E4F", "India" = "#5E4FA2", "Pakistan" = "#440154")) +
+  labs(
+    title = "Dairy Production Over Time for\nTop 3 Countries (Production)",
+    x = "Year",
+    y = "Production (tonnes)"
+  ) +
+  scale_y_continuous(labels = scales::label_number(scale = 1e-6, suffix = "M")) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.title = element_blank()
+  )
+
+# RELATIONSHIP BETWEEN PRODUCTION AND CONSUMPTION:
+combined_2020 <- inner_join(production_2020, consumption_2020, by = c("Country", "Year")) %>%
+  drop_na(Production, Consumption)
+
+relationship_plot <- ggplot(combined_2020, aes(x = Production, y = Consumption)) +
+  geom_point(aes(color = Country), size = 3, show.legend = FALSE) +
+  scale_color_viridis_d(option = "plasma") +
+  scale_x_continuous(labels = scales::label_number(scale = 1e-6, suffix = "M")) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(
+    title = "Relationship Between Dairy Production\nand Consumption (2020)",
+    x = "Production (tonnes)",
+    y = "Consumption (kg per capita)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.margin = margin(t = 10, b = 20),
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold")
+  ) +
+  geom_text_repel(
+    data = combined_2020 %>% filter(Country %in% c("USA", "India", "Pakistan", "Malaysia")),
+    aes(label = Country),
+    nudge_y = 50,
+    size = 3
+  )
+
+# COMBINE ALL PLOTS INTO A DASHBOARD:
+ dashboard <- plot_grid(
+  plot_grid(production_map, consumption_map, ncol = 2, rel_widths = c(1, 1)),  
+  plot_grid(change_over_time, relationship_plot, ncol = 2, rel_widths = c(1, 1)),
+  ncol = 1, 
+  rel_heights = c(1, 1)
+)
+
+# Display the updated dashboard
+print(dashboard)
+```
+
+### Dairy Production and Consumption Analysis in 2020
+
+This dashboard provides a global view and detailed insights into dairy production and consumption patterns worldwide, with a specific focus on major producing and consuming countries.
+
+1. Global Dairy Production in 2020:
+
+The world map on the left shows dairy production in tonnes, highlighting key producing countries. The color gradient from purple to yellow represents increasing production levels.
+High-producing countries like the United States and India are shown in yellow, indicating their significant output in dairy production.
+
+2. Global Dairy Consumption in 2020:
+
+The right-side world map visualizes dairy consumption per capita, with a color scale representing increasing consumption from purple to yellow.
+Countries with higher per capita consumption, such as those in Europe, are prominently highlighted, showcasing regions with high dairy demand.
+
+3. Dairy Production Over Time for Top 3 Countries:
+
+This line plot depicts the production trends over time for India, Pakistan, and the United States, the top three dairy producers.
+Notably, India has shown a steep increase in dairy production, particularly after the 2000s, indicating its expanding dairy industry.
+
+4. Relationship Between Dairy Production and Consumption (2020):
+
+The scatter plot examines the relationship between production and per capita consumption across different countries in 2020.
+Key countries are labeled to highlight interesting points:
+Malaysia as an outlier with high consumption but low production.
+USA and India as major producers, with moderate per capita consumption relative to their production.
+The color scheme uses a plasma palette, with larger values for production represented in warmer tones, giving an intuitive sense of distribution across countries.
+
+## PROBLEM 2:
+
+
+```{r, message=FALSE, warning=FALSE}
+# LOAD DATASETS:
+words_data <- read_csv("taylor_swift_words_data.csv")
+spotify_data <- read_csv("taylor_swift_spotify_data.csv")
+
+# ALBUMS TO ANALYZE (CHOSE AN ALBUM THAT IS SAD, AND ONE THAT IS HAPPY):
+albums_to_analyze <- c("Fearless", "Lover")
+
+# FILTER SPOTIFY DATA:
+filtered_spotify <- spotify_data %>%
+  rename(Song_Name = `Song Name`) %>%
+  filter(Album %in% albums_to_analyze)
+
+# FILTER WORDS DATA:
+filtered_words <- words_data %>%
+  rename(Song_Name = `Song Name`) %>%
+  filter(Song_Name %in% filtered_spotify$Song_Name)
+
+# PREPARE WORD COUNT DATA:
+words_long <- filtered_words %>%
+  pivot_longer(cols = -Song_Name, names_to = "word", values_to = "count") %>%
+  filter(count > 0) %>%
+  left_join(filtered_spotify %>% select(Song_Name, Album), by = "Song_Name")
+
+word_counts <- words_long %>%
+  group_by(Album, word) %>%
+  summarize(total_count = sum(count), .groups = "drop")
+
+# SENTIMENT ANALYSIS:
+sentiments <- get_sentiments("bing")
+sentiment_analysis <- words_long %>%
+  inner_join(sentiments, by = "word")
+
+# SUMMARIZE SENTIMENT BY SONG:
+song_sentiments <- sentiment_analysis %>%
+  group_by(Song_Name, Album) %>%
+  summarize(
+    sentiment_score = sum(ifelse(sentiment == "positive", count, -count)),
+    .groups = "drop"
+  )
+
+# MERGE:
+spotify_sentiment <- filtered_spotify %>%
+  inner_join(song_sentiments, by = c("Song_Name", "Album"))
+
+fearless_color <- "#5E4FA2" 
+lover_color <- "#D53E4F"   
+
+# PLOT 1: DANCEABILITY AND ENERGY HEATMAP:
+heatmap_plot <- ggplot(spotify_sentiment, aes(x = Danceability, y = Energy)) +
+  geom_bin2d(binwidth = c(0.05, 0.05)) +
+  facet_wrap(~ Album) +
+  scale_fill_viridis_c(option = "plasma", name = "Count") +
+  labs(
+    title = "Danceability and Energy Heatmap",
+    x = "Danceability",
+    y = "Energy"
+  ) +
+  theme_minimal() +  # Change to minimal theme to remove gray background
+  theme(
+    plot.title = element_text(face = "bold", size = 12, hjust = 0.5),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.title = element_text(size = 8),  
+    legend.text = element_text(size = 8),   
+    legend.key.size = unit(0.5, "cm")       
+  )
+
+# PLOT 2: TEMPO AND SENTIMENT DISTRIBUTION (RIDGELINE PLOT):
+tempo_sentiment_plot <- ggplot(spotify_sentiment, aes(x = Tempo, y = factor(Album), fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(name = "Tempo (BPM)", option = "magma") +
+  labs(
+    title = "Tempo and Sentiment Distribution",
+    x = "Tempo (BPM)",
+    y = "Album"
+  ) +
+  theme_ridges(font_size = 12, grid = TRUE) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, hjust = 0.5),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.title = element_text(size = 8),  
+    legend.text = element_text(size = 8),   
+    legend.key.size = unit(0.5, "cm")       
+  )
+
+# PLOT 3: ACOUSTICNESS vs. LOUDNESS BY ALBUM:
+acousticness_loudness_plot <- ggplot(spotify_sentiment, aes(x = Acousticness, y = Loudness, color = Album)) +
+  geom_point(size = 3, alpha = 0.7) +
+  scale_color_manual(values = c("Fearless" = fearless_color, "Lover" = lover_color)) +  
+  labs(
+    title = "Acousticness vs Loudness",
+    x = "Acousticness",
+    y = "Loudness (dB)"
+  ) +
+  theme_minimal() +  
+  theme(
+    plot.title = element_text(face = "bold", size = 12, hjust = 0.5),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+
+row1 <- plot_grid(
+  heatmap_plot,
+  acousticness_loudness_plot,
+  ncol = 2, 
+  rel_widths = c(1, 1)  
+)
+
+final_plots <- plot_grid(
+  row1,
+  tempo_sentiment_plot,
+  ncol = 1, 
+  rel_heights = c(1, 1.25)  
+)
+
+# DISPLAY:
+print(final_plots)
+```
+
+### A Comparative Analysis of Musical Attributes in Taylor Swift's "Fearless" and "Lover" Albums
+
+This dashboard compares key musical attributes of Taylor Swift's "Fearless" and "Lover" albums using Spotify data, highlighting her stylistic evolution between the two.
+
+1. Danceability and Energy Heatmap:
+
+The heatmap shows the density of songs by danceability and energy, with warmer colors indicating higher counts.
+"Lover" has slightly more high-danceability songs, aligning with its upbeat, romantic theme, while "Fearless" clusters more in moderate levels.
+
+2. Tempo and Sentiment Distribution:
+
+This ridgeline plot illustrates tempo distributions across both albums. "Lover" includes some higher-tempo songs, while "Fearless" has a balanced spread, reflecting its more reflective tone.
+
+3. Acousticness vs. Loudness:
+
+The scatter plot contrasts acousticness and loudness. "Fearless" leans more acoustic (reflecting its country roots), while "Lover" has louder, less acoustic songs, showing its pop influence.
+These visualizations provide a comparison of the albums’ musical characteristics, reflecting the thematic and stylistic shifts between them.
+
+```{r, message=FALSE, warning=FALSE}
+# SUMMARIZE SENTIMENT BY ALBUM:
+sentiment_summary <- sentiment_analysis %>%
+  group_by(Album, sentiment) %>%
+  summarize(total_count = sum(count), .groups = "drop") %>%
+  group_by(Album) %>%
+  mutate(proportion = total_count / sum(total_count))
+
+colors <- c(
+    "positive_main" = "#6a51a3", 
+    "positive_light" = "#9c7ece", 
+    "negative_main" = "#fc8d59",  
+    "negative_light" = "#fdd49e" 
+)
+
+# DIFFERENT COLORS FOR EACH BAR:
+sentiment_summary <- sentiment_summary %>%
+  mutate(
+    sentiment_color = case_when(
+      sentiment == "positive" & Album == "Fearless" ~ "positive_main",
+      sentiment == "positive" & Album == "Lover" ~ "positive_light",
+      sentiment == "negative" & Album == "Fearless" ~ "negative_main",
+      sentiment == "negative" & Album == "Lover" ~ "negative_light"
+    )
+  )
+
+# PLOT:
+sentiment_plot <- ggplot(sentiment_summary, aes(x = Album, y = proportion, fill = sentiment_color)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(
+    aes(
+      label = paste0(sentiment, "\n", scales::percent(proportion, accuracy = 1)),
+      color = ifelse(Album == "Lover", "black", "white")
+    ),
+    position = position_stack(vjust = 0.5),
+    size = 4,
+    fontface = "bold",  
+    show.legend = FALSE
+  ) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values = colors) +  
+  scale_color_identity() +  
+  labs(
+    title = "Sentiment Proportions: Fearless vs Lover",
+    x = "Album",
+    y = "Proportion of Sentiment"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, hjust = 0.5, color = "#333333"),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 10, color = "#444444"),
+    panel.background = element_blank(),  
+    plot.background = element_blank(), 
+    legend.position = "none"
+  )
+
+# DISPLAY:
+print(sentiment_plot)
+```
+
+### Sentiment Proportions: Fearless vs Lover
+This bar chart compares the proportions of positive and negative sentiments in Taylor Swift's albums Fearless and Lover. Each album's bar is divided into sections representing the percentage of positive and negative sentiments found in the lyrics, with the percentages labeled for clarity.
+
+Fearless: Contains a higher proportion of positive sentiment, with 62% of its lyrics reflecting positivity. This aligns with the album's hopeful and nostalgic themes.
+
+Lover: Shows a slightly more balanced sentiment distribution, with 60% positive and 40% negative sentiments. This reflects the album's mix of romantic joy and introspective moments.
+The contrasting sentiment proportions provide insight into the thematic evolution between Fearless and Lover, with Fearless leaning towards optimism and Lover exploring a more nuanced emotional range.
+
+```{r, message = FALSE, warning = FALSE}
+# PROCESS WORD DATA:
+filtered_word_counts <- word_counts %>%
+  anti_join(get_stopwords(), by = c("word" = "word")) %>%
+  mutate(
+    word = case_when(
+      word == "re" ~ NA_character_,
+      word == "don" ~ "don't",
+      word == "boutprincess" ~ "princess",
+      TRUE ~ word
+    )
+  ) %>%
+  filter(!is.na(word))
+
+# FILTER & CLEAN:
+top_words_fearless <- filtered_word_counts %>%
+  filter(Album == "Fearless") %>%
+  filter(!word %in% c("ll", "la", "ve", "oh")) %>%
+  arrange(desc(total_count)) %>%
+  top_n(100, total_count)
+
+top_words_lover <- filtered_word_counts %>%
+  filter(Album == "Lover") %>%
+  filter(!word %in% c("ll", "ain", "isn", "ve", "oh")) %>%
+  arrange(desc(total_count)) %>%
+  top_n(100, total_count)
+
+# WORDCLOUDS:
+fearless_plot <- ggplot(top_words_fearless, aes(label = word, size = total_count, color = total_count)) +
+  geom_text_wordcloud_area(shape = "circle", rm_outside = TRUE) +  
+  scale_size_area(max_size = 12) +  
+  scale_color_gradient(low = "#87CEEB", high = "#1E90FF") +  
+  labs(title = "Word Cloud: Fearless") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5, color = "#1E90FF"),
+    panel.background = element_rect(fill = "white"),
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10)  
+  )
+
+lover_plot <- ggplot(top_words_lover, aes(label = word, size = total_count, color = total_count)) +
+  geom_text_wordcloud_area(shape = "circle", rm_outside = TRUE) +  
+  scale_size_area(max_size = 12) +  
+  scale_color_gradient(low = "#FFB6C1", high = "#FF1493") +  
+  labs(title = "Word Cloud: Lover") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5, color = "#FF1493"),
+    panel.background = element_rect(fill = "white"),
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10)  
+  )
+
+# COMBINE PLOTS SIDE BY SIDE:
+combined_wordclouds <- grid.arrange(
+  fearless_plot,
+  lover_plot,
+  ncol = 2,
+  top = textGrob(
+    "Taylor Swift Word Clouds: Fearless vs Lover",
+    gp = gpar(fontsize = 20, fontface = "bold", col = "#333333")
+  ) 
+)
+```
+
+### Word Cloud: Fearless (Blue Gradient)
+
+Color Palette: A calming blue gradient reflects the reflective and emotional tone of the Fearless album.
+
+Dominant Words:
+Words like "know," "can," "don't," "love," and "never" appear prominently, emphasizing themes of self-discovery, heartbreak, and emotional resilience.
+Words such as "rain," "run," and "feel" indicate a connection to vivid imagery and feelings, central to Fearless's storytelling style.
+
+Overall Tone:
+The choice of words suggests introspection, emotional growth, and a narrative-driven structure, consistent with the album’s country roots and themes of youth and love.
+
+### Word Cloud: Lover (Pink Gradient)
+
+Color Palette: A warm pink gradient highlights the romantic, playful, and celebratory tone of Lover.
+
+Dominant Words:
+Words like "like," "love," "want," "just," "right," and "man" emphasize romantic desire, personal relationships, and self-expression.
+Terms like "daylight," "see," and "go" hint at themes of optimism, freedom, and moving forward.
+
+Overall Tone:
+The word selection conveys joy, vulnerability, and confidence, aligning with Lover's bright, pop-influenced style.
+
+```{r, message=FALSE, warning=FALSE}
+# CONVERT INTO GRABS:
+fearless_grob <- ggplotGrob(fearless_plot)
+lover_grob <- ggplotGrob(lover_plot)
+
+# ROW 1:
+ro1 <- plot_grid(
+  heatmap_plot,
+  acousticness_loudness_plot,
+  ncol = 2,
+  rel_widths = c(1, 1)
+)
+
+# ROW 2:
+ro2 <- tempo_sentiment_plot
+
+# ROW 3:
+ro3 <- plot_grid(
+  fearless_grob,
+  lover_grob,
+  ncol = 2,
+  rel_widths = c(1, 1)
+)
+
+# COMBINE ALL ROWS:
+final_plot <- plot_grid(
+  ro1,
+  ro2,
+  ro3,
+  ncol = 1,
+  rel_heights = c(1.25, 1.25, 1.5)
+)
+
+# DISPLAY:
+print(final_plot)
+
+```
+
+### Dashboard Overview: Taylor Swift's Fearless vs Lover
+
+This dashboard unites analytical and creative visuals to compare Taylor Swift’s Fearless and Lover. It highlights key musical and lyrical differences across the albums.
+
+#### Visual Breakdown
+
+##### Danceability & Energy Heatmap:
+
+Top left: Clusters reveal the mood of each album, with Lover showcasing more danceable tracks.
+
+##### Acousticness vs Loudness:
+
+Top right: Fearless leans acoustic, while Lover features louder, polished pop sounds.
+
+##### Tempo & Sentiment Distribution:
+
+Center: Lover embraces faster tempos, while Fearless maintains balance, reflecting its reflective tone.
+
+##### Word Clouds:
+
+Bottom row: Cooler tones in Fearless and warmer tones in Lover emphasize lyrical themes and word frequency.
+
+##### Purpose
+
+This dashboard combines lyrical and musical insights into a cohesive display, allowing for an easy yet meaningful comparison of the albums' attributes. The layout balances technical analysis with creative visuals for clarity and impact.
+
+```{r, message=FALSE, warning=FALSE}
+ggsave("heatmap_plot.png", plot = heatmap_plot, width = 8, height = 6)
+ggsave("tempo_sentiment_plot.png", plot = tempo_sentiment_plot, width = 8, height = 6)
+ggsave("acousticness_loudness_plot.png", plot = acousticness_loudness_plot, width = 8, height = 6)
+ggsave("sentiment_plot.png", plot = sentiment_plot, width = 8, height = 6)
+ggsave("fearless_wordcloud.png", plot = fearless_plot, width = 8, height = 6)
+ggsave("lover_wordcloud.png", plot = lover_plot, width = 8, height = 6)
+dairy_dashboard <- plot_grid(
+  plot_grid(production_map, consumption_map, ncol = 2, rel_widths = c(1, 1)),
+  plot_grid(change_over_time, relationship_plot, ncol = 2, rel_widths = c(1, 1)),
+  ncol = 1, rel_heights = c(1, 1)
+)
+ggsave("dairy_dashboard.png", plot = dairy_dashboard, width = 12, height = 10, dpi = 300)
+ggsave("taylor_swift_dashboard.png", plot = final_plot, width = 12, height = 8)
+```
+
