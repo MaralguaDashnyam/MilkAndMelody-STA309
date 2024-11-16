@@ -1,50 +1,83 @@
-# MilkAndMelody-STA309
-Midterm project for STA309 focusing on data visualization. Includes dashboards analyzing global dairy production and consumption, and Taylor Swift's albums 'Fearless' and 'Lover' through musical and sentiment analysis.
-# Milk and Melody Dashboard - STA309 Midterm 2
+# STA309 Midterm 2: Milk and Melody
 
-This repository contains my submission for STA309 Midterm 2. It includes dashboards and analyses comparing dairy production/consumption trends and Taylor Swift's albums "Fearless" and "Lover."
+**Author**: Hera Dashnyam  
+**Date**: November 13, 2024  
 
-## Problem 1: Dairy Production and Consumption Dashboard
-
-### Global Dairy Production in 2020
-![Dairy Production](production_map.png)
-
-### Global Dairy Consumption in 2020
-![Dairy Consumption](consumption_map.png)
-
-### Dairy Production Over Time
-This plot shows trends in dairy production for the top three producing countries: the USA, India, and Pakistan.
-![Production Over Time](change_over_time.png)
-
-### Relationship Between Dairy Production and Consumption
-![Relationship](relationship_plot.png)
+This project contains dashboards analyzing **global dairy production and consumption** as well as a **lyrical and musical comparison of Taylor Swift’s albums "Fearless" and "Lover."**
 
 ---
 
-## Problem 2: Taylor Swift Dashboard
+## Problem 1: Dairy Production and Consumption Analysis
 
-### Danceability and Energy Heatmap
-![Heatmap](heatmap_plot.png)
+This part of the project provides a global perspective on dairy production and consumption patterns using data from the Food and Agriculture Organization (FAO). The analysis includes:
 
-### Tempo and Sentiment Distribution
-![Tempo and Sentiment](tempo_sentiment_plot.png)
+1. **Global Dairy Production in 2020**:
+   - A world map highlighting production in tonnes by country.
+   - High-producing countries like the USA and India stand out.
 
-### Acousticness vs. Loudness
-![Acousticness vs. Loudness](acousticness_loudness_plot.png)
+   ![Global Dairy Production](dairy_dashboard.png)
 
-### Sentiment Proportions
-![Sentiment Proportions](sentiment_plot.png)
+2. **Global Dairy Consumption in 2020**:
+   - A world map visualizing per capita milk consumption.
+   - European countries show higher per capita consumption levels.
 
-### Word Cloud: Fearless
-![Fearless Word Cloud](fearless_wordcloud.png)
+   ![Global Dairy Consumption](dairy_dashboard.png)
 
-### Word Cloud: Lover
-![Lover Word Cloud](lover_wordcloud.png)
+3. **Dairy Production Trends Over Time**:
+   - Line chart showing trends for top-producing countries: USA, India, and Pakistan.
+   - Highlights India’s rapid increase in production since the 2000s.
+
+4. **Production vs. Consumption Relationship**:
+   - Scatter plot analyzing how production correlates with consumption.
+   - Identifies outliers like Malaysia (high consumption, low production).
+
+The dashboard combines these plots to deliver insights into global dairy trends and their implications.
 
 ---
 
-## How to Use This Repository
+## Problem 2: Taylor Swift Albums Analysis
 
-1. Clone the repository using:
-   ```bash
-   git clone https://github.com/<your-username>/MilkAndMelody-STA309.git
+A lyrical and musical comparison of two of Taylor Swift’s iconic albums, *Fearless* (reflective, emotional) and *Lover* (romantic, upbeat), was conducted using Spotify and lyrics data. Key components:
+
+1. **Word Clouds**:
+   - Visualizations for the most frequently used words in each album.
+   - *Fearless*: Cooler blue tones reflect its introspective themes.
+   - *Lover*: Warmer pink tones align with its joyful and romantic nature.
+
+   ![Word Clouds](fearless_wordcloud.png) ![Word Clouds](lover_wordcloud.png)
+
+2. **Sentiment Analysis**:
+   - Bar chart comparing positive and negative sentiment proportions.
+   - *Fearless*: Dominated by positive sentiment (62%).
+   - *Lover*: A balance of positivity and introspection (60% positive, 40% negative).
+
+   ![Sentiment Analysis](sentiment_plot.png)
+
+3. **Musical Attributes**:
+   - **Danceability & Energy Heatmap**: Visualizing the density of songs with high danceability and energy.
+     ![Heatmap](heatmap_plot.png)
+   - **Acousticness vs. Loudness**: Highlights the acoustic, country roots of *Fearless* versus the pop polish of *Lover*.
+     ![Acousticness vs Loudness](acousticness_loudness_plot.png)
+   - **Tempo Distribution**: A ridgeline plot showing *Lover*’s faster tempos compared to the balanced pace of *Fearless*.
+     ![Tempo Distribution](tempo_sentiment_plot.png)
+
+The dashboard effectively contrasts the thematic and stylistic evolution of Taylor Swift’s music.
+
+---
+
+## Repository Structure
+
+- `README.md`: Project overview and description (this file).
+- `MIDTERM2-Hera-Dashnyam.Rmd`: The R Markdown file containing all the code and analysis.
+- PNG files: All plots used in the dashboards:
+  - `dairy_dashboard.png`
+  - `heatmap_plot.png`
+  - `tempo_sentiment_plot.png`
+  - `acousticness_loudness_plot.png`
+  - `sentiment_plot.png`
+  - `fearless_wordcloud.png`
+  - `lover_wordcloud.png`
+
+---
+
+This README serves as an overview of the project, summarizing the key findings and linking the visualizations.
