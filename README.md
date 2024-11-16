@@ -7,11 +7,16 @@ This project contains dashboards analyzing **global dairy production and consump
 
 ---
 
+## Important Note:
+**For the best experience and detailed visuals, it is highly recommended to view the full analysis and visualizations in the R Markdown file (`MIDTERM2-Hera-Dashnyam.Rmd`).** The README provides an overview, but the R Markdown file contains additional context, interactivity, and better formatting for the visualizations.
+
+---
+
 ## Problem 1: Dairy Production and Consumption Analysis
 
 This part of the project provides a global perspective on dairy production and consumption patterns using data from the Food and Agriculture Organization (FAO). The analysis includes:
 
-   <img src="dairy_dashboard.png" alt="Global Dairy Production" width="600"/>
+![Dairy Dashboard](dairy_dashboard.png)
 
 1. **Global Dairy Production in 2020**:
    - A world map highlighting production in tonnes by country.
@@ -29,35 +34,39 @@ This part of the project provides a global perspective on dairy production and c
    - Scatter plot analyzing how production correlates with consumption.
    - Identifies outliers like Malaysia (high consumption, low production).
 
-The dashboard combines these plots to deliver insights into global dairy trends and their implications.
-
 ---
 
 ## Problem 2: Taylor Swift Albums Analysis
 
 A lyrical and musical comparison of two of Taylor Swift’s iconic albums, *Fearless* (reflective, emotional) and *Lover* (romantic, upbeat), was conducted using Spotify and lyrics data. Key components:
 
+### Full Taylor Swift Dashboard:
+This dashboard combines all the visualizations for the Taylor Swift analysis in a single display:
+
+![Taylor Swift Dashboard](taylor_swift_dashboard.png)
+
+### Individual Plots:
 1. **Word Clouds**:
    - Visualizations for the most frequently used words in each album.
    - *Fearless*: Cooler blue tones reflect its introspective themes.
    - *Lover*: Warmer pink tones align with its joyful and romantic nature.
 
-   <img src="fearless_wordcloud.png" alt="Word Cloud Fearless" width="300"/> <img src="lover_wordcloud.png" alt="Word Cloud Lover" width="300"/>
+   ![Fearless Word Cloud](fearless_wordcloud.png) ![Lover Word Cloud](lover_wordcloud.png)
 
 2. **Sentiment Analysis**:
    - Bar chart comparing positive and negative sentiment proportions.
    - *Fearless*: Dominated by positive sentiment (62%).
    - *Lover*: A balance of positivity and introspection (60% positive, 40% negative).
 
-   <img src="sentiment_plot.png" alt="Sentiment Analysis" width="600"/>
+   ![Sentiment Analysis](sentiment_plot.png)
 
 3. **Musical Attributes**:
    - **Danceability & Energy Heatmap**: Visualizing the density of songs with high danceability and energy.
-     <img src="heatmap_plot.png" alt="Danceability and Energy Heatmap" width="600"/>
+     ![Danceability and Energy Heatmap](heatmap_plot.png)
    - **Acousticness vs. Loudness**: Highlights the acoustic, country roots of *Fearless* versus the pop polish of *Lover*.
-     <img src="acousticness_loudness_plot.png" alt="Acousticness vs Loudness" width="600"/>
+     ![Acousticness vs Loudness](acousticness_loudness_plot.png)
    - **Tempo Distribution**: A ridgeline plot showing *Lover*’s faster tempos compared to the balanced pace of *Fearless*.
-     <img src="tempo_sentiment_plot.png" alt="Tempo Distribution" width="600"/>
+     ![Tempo Distribution](tempo_sentiment_plot.png)
 
 The dashboard effectively contrasts the thematic and stylistic evolution of Taylor Swift’s music.
 
@@ -66,7 +75,7 @@ The dashboard effectively contrasts the thematic and stylistic evolution of Tayl
 ## Repository Structure
 
 - `README.md`: Project overview and description (this file).
-- `MIDTERM2-Hera-Dashnyam.Rmd`: The R Markdown file containing all the code and analysis.
+- `MIDTERM2-Hera-Dashnyam.Rmd`: The R Markdown file containing all the code and analysis. **This file is preferred for viewing full-quality visuals and interactive elements.**
 - PNG files: All plots used in the dashboards:
   - `dairy_dashboard.png`
   - `heatmap_plot.png`
@@ -75,7 +84,8 @@ The dashboard effectively contrasts the thematic and stylistic evolution of Tayl
   - `sentiment_plot.png`
   - `fearless_wordcloud.png`
   - `lover_wordcloud.png`
+  - `taylor_swift_dashboard.png`
 
 ---
 
-This README serves as an overview of the project, summarizing the key findings and linking the visualizations.
+This README provides a concise overview of the project, but for a more in-depth analysis and better visual clarity, please view the `MIDTERM2-Hera-Dashnyam.Rmd` file.
