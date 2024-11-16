@@ -11,17 +11,15 @@ This project contains dashboards analyzing **global dairy production and consump
 
 This part of the project provides a global perspective on dairy production and consumption patterns using data from the Food and Agriculture Organization (FAO). The analysis includes:
 
+   <img src="dairy_dashboard.png" alt="Global Dairy Production" width="600"/>
+
 1. **Global Dairy Production in 2020**:
    - A world map highlighting production in tonnes by country.
    - High-producing countries like the USA and India stand out.
 
-   ![Global Dairy Production](dairy_dashboard.png)
-
 2. **Global Dairy Consumption in 2020**:
    - A world map visualizing per capita milk consumption.
    - European countries show higher per capita consumption levels.
-
-   ![Global Dairy Consumption](dairy_dashboard.png)
 
 3. **Dairy Production Trends Over Time**:
    - Line chart showing trends for top-producing countries: USA, India, and Pakistan.
@@ -44,22 +42,22 @@ A lyrical and musical comparison of two of Taylor Swift’s iconic albums, *Fear
    - *Fearless*: Cooler blue tones reflect its introspective themes.
    - *Lover*: Warmer pink tones align with its joyful and romantic nature.
 
-   ![Word Clouds](fearless_wordcloud.png) ![Word Clouds](lover_wordcloud.png)
+   <img src="fearless_wordcloud.png" alt="Word Cloud Fearless" width="300"/> <img src="lover_wordcloud.png" alt="Word Cloud Lover" width="300"/>
 
 2. **Sentiment Analysis**:
    - Bar chart comparing positive and negative sentiment proportions.
    - *Fearless*: Dominated by positive sentiment (62%).
    - *Lover*: A balance of positivity and introspection (60% positive, 40% negative).
 
-   ![Sentiment Analysis](sentiment_plot.png)
+   <img src="sentiment_plot.png" alt="Sentiment Analysis" width="600"/>
 
 3. **Musical Attributes**:
    - **Danceability & Energy Heatmap**: Visualizing the density of songs with high danceability and energy.
-     ![Heatmap](heatmap_plot.png)
+     <img src="heatmap_plot.png" alt="Danceability and Energy Heatmap" width="600"/>
    - **Acousticness vs. Loudness**: Highlights the acoustic, country roots of *Fearless* versus the pop polish of *Lover*.
-     ![Acousticness vs Loudness](acousticness_loudness_plot.png)
+     <img src="acousticness_loudness_plot.png" alt="Acousticness vs Loudness" width="600"/>
    - **Tempo Distribution**: A ridgeline plot showing *Lover*’s faster tempos compared to the balanced pace of *Fearless*.
-     ![Tempo Distribution](tempo_sentiment_plot.png)
+     <img src="tempo_sentiment_plot.png" alt="Tempo Distribution" width="600"/>
 
 The dashboard effectively contrasts the thematic and stylistic evolution of Taylor Swift’s music.
 
